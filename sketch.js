@@ -9,11 +9,14 @@ let chunks = [];
 let isRecording = false;
 
 function setup() {
-  pixelDensity(1); 
+  // REMOVED: pixelDensity(1); 
+  // ADDED: This allows the canvas to use the full resolution of your screen
+  pixelDensity(displayDensity()); 
+  
   let canvas = createCanvas(PREVIEW_WIDTH, 400); 
   canvas.parent('canvas-container'); 
   
-  background(255);
+  background(255); 
   fill(44, 44, 44);
   textAlign(CENTER, CENTER);
   textSize(16);
@@ -40,15 +43,12 @@ function handleUpload(event) {
       media.loop();    
       media.hide();    
       setupMediaDimensions(media.width, media.height);
-      
-      // Monitor for the end of the video to stop recording
       media.elt.onended = () => {
         if (isRecording) {
           toggleRecording();
-          media.loop(); // Resume looping for the browser preview
+          media.loop(); 
         }
       };
-
       loop();          
     });
   } else if (file.type.startsWith('image/')) {
@@ -66,6 +66,8 @@ function setupMediaDimensions(w, h) {
   let aspect = h / w;
   let newHeight = PREVIEW_WIDTH * aspect;
   resizeCanvas(PREVIEW_WIDTH, newHeight);
+  
+  // Keep the hidden buffer at 1:1 scale for better performance
   gfx = createGraphics(PREVIEW_WIDTH, newHeight);
   gfx.pixelDensity(1); 
 }
@@ -74,7 +76,7 @@ function draw() {
   if (!media || !gfx) return; 
   if (isVideo && media.elt.readyState < 2) return;
 
-  background(244, 244, 240); 
+  background(255); 
   fill(44, 44, 44); 
   noStroke();
   textFont('Google Sans Code');
@@ -93,6 +95,8 @@ function draw() {
       const pixelIndex = (floor(x) + floor(y) * gfx.width) * 4;
       const avgBrightness = (gfx.pixels[pixelIndex] + gfx.pixels[pixelIndex+1] + gfx.pixels[pixelIndex+2]) / 3;
       const char = density.charAt(floor(map(avgBrightness, 0, 255, 0, density.length - 1)));
+      
+      // Drawing directly to the high-density canvas makes the text razor sharp
       text(char, x, y);
       asciiString += char;
     }
@@ -106,9 +110,10 @@ function handleExport() {
   let scale = parseInt(document.getElementById('export-scale').value, 10);
 
   if (format === 'png' || format === 'jpg') {
+    // Export remains consistent with the chosen Export Scale
     let hiRes = createGraphics(width * scale, height * scale);
     hiRes.pixelDensity(1);
-    hiRes.background(244, 244, 240);
+    hiRes.background(255); 
     hiRes.fill(44, 44, 44);
     hiRes.noStroke();
     hiRes.textFont('Google Sans Code');
@@ -129,14 +134,13 @@ function handleExport() {
     }
     save(hiRes, 'img-text_v4_export', format);
   } else if (format === 'webm') {
-    // PRE-RECORDING SEQUENCE: Reset and play once
     if (!isRecording) {
-      media.noLoop(); // Stop looping to allow 'onended' to fire
-      media.stop();   // Jump to frame zero
-      media.play();   // Start playback
+      media.noLoop();
+      media.stop();
+      media.play();
       toggleRecording();
     } else {
-      toggleRecording(); // Manual stop if user clicks button again
+      toggleRecording();
     }
   } else if (format === 'text') {
     copyToClipboard();
@@ -152,13 +156,10 @@ function toggleRecording() {
   } else {
     let canvasElement = document.querySelector('canvas');
     let stream = canvasElement.captureStream(30); 
-    
-    // High bitrate config
     recorder = new MediaRecorder(stream, { 
       mimeType: 'video/webm;codecs=vp9',
       videoBitsPerSecond: 8000000 
     });
-    
     chunks = [];
     recorder.ondataavailable = e => chunks.push(e.data);
     recorder.onstop = () => {
