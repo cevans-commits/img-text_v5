@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>img-text_v4</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    <header>
+      <h1>img-text_v4</h1>
+    </header>
+
+    <div class="main-content">
+      <aside class="controls">
+        
+        <div class="control-group">
+          <input type="file" id="image-upload" accept="image/*, video/*" style="display: none;">
+          <label for="image-upload" class="btn-upload">
+            <span>UPLOAD MEDIA</span>
+          </label>
+          <p class="help-text">.JPG, .PNG, OR .MP4</p>
+        </div>
+
+        <div class="control-group">
+          <label for="fidelity-slider">FIDELITY</label>
+          <div class="slider-container">
+            <input type="range" id="fidelity-slider" min="2" max="20" value="8">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="char-input">CHARACTER SEQUENCE</label>
+          <input type="text" id="char-input" value="@#S%?*+;:,. ">
+        </div>
+
+        <div class="control-group">
+          <label for="export-format">OUTPUT FORMAT</label>
+          <select id="export-format" class="custom-select">
+            <option value="png">PNG IMAGE</option>
+            <option value="jpg">JPG IMAGE</option>
+            <option value="webm">VIDEO (.WEBM)</option>
+            <option value="text">TEXT (COPY TO CLIPBOARD)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="export-scale">EXPORT SCALE</label>
+          <select id="export-scale" class="custom-select">
+            <option value="1">1X (STANDARD)</option>
+            <option value="2" selected>2X (SHARP)</option>
+            <option value="4">4X (ULTRA-HD)</option>
+          </select>
+        </div>
+
+        <button id="export-btn" class="btn-dark">
+          <span>EXPORT CANVAS</span>
+        </button>
+      </aside>
+
+      <main id="canvas-container"></main>
+    </div>
+  </div>
+
+  <script src="sketch.js"></script>
+</body>
+</html>
